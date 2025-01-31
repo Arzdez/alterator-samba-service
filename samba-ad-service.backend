@@ -1,0 +1,34 @@
+type = "Backend"
+module = "executor"
+interface = "service1"
+name = "samba_managment_service"
+
+[methods.Info]
+execute = "cat /usr/share/alterator/service/samba-ad-service.service"
+action_id = "Info"
+stdout_strings = true
+
+[methods.Deploy]
+execute = "samba-ad-service -p -i {params}"
+action_id = "Deploy"
+timeout = 600
+
+[methods.Undeploy]
+execute = "samba-ad-service -d"
+action_id = "Undeploy"
+timeout = 600
+
+[methods.Status]
+execute = "samba-ad-service"
+action_id = "Status"
+stdout_strings = true
+
+[methods.Restore]
+execute = "samba-ad-service -r -i {params}"
+action_id = "Restore"
+timeout = 600
+
+[methods.Backup]
+execute = "samba-ad-service -b -i {params}"
+action_id = "Backup"
+timeout = 600

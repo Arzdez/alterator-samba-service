@@ -1,0 +1,71 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Samba AD Provision Parameters",
+    "type": "object",
+    "propertyNames": {
+        "enum": [
+            "domain",
+            "domain-realm",
+            "function-level",
+            "site-name",
+            "server-role",
+            "dns-backend",
+            "backend-store",
+            "backend-store-size",
+            "options",
+            "admpass",
+            "use-mitkrb5",
+            "use-rfc",
+            "force-deploy"
+        ]
+    },
+    "properties": {
+        "domain": {
+            "type": "string"
+        },
+        "domain-realm": {
+            "type": "string"
+        },
+        "function-level": {
+            "type": "string"
+        },
+        "site-name": {
+            "type": "string"
+        },
+        "server-role": {
+            "type": "string"
+        },
+        "dns-backend": {
+            "type": "string"
+        },
+        "backend-store": {
+            "type": "string"
+        },
+        "backend-store-size": {
+            "type": "string"
+        },
+        "options": {
+            "type": "string"
+        },
+        "admpass": {
+            "type": "string"
+        },
+        "use-mitkrb5": {
+            "type": "boolean"
+        },
+        "use-rfc": {
+            "type": "boolean"
+        },
+        "force-deploy": {
+            "type": "boolean"
+        }
+    },
+    "required": [
+        "domain",
+        "domain-realm",
+        "admpass",
+        "dns-backend",
+        "server-role"
+    ]
+}
+
