@@ -1,0 +1,209 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Alterator Service",
+    "type": "object",
+    "propertyNames": {
+        "enum": [
+            "type",
+            "name",
+            "category",
+            "icon",
+            "display_name",
+            "parameters",
+            "resources",
+            "services",
+            "ports",
+            "comment"
+        ]
+    },
+    "required": [
+        "type",
+        "name",
+        "parameters"
+    ],
+    "properties": {
+        "type": {
+            "type": "string",
+            "const": "Service"
+        },
+        "name": {
+            "type": "string"
+        },
+        "display_name": {
+            "type": "object",
+            "propertyNames": {
+                "pattern": "^[a-z]{2}(_[A-Z]{2})?$"
+            },
+            "additionalProperties": {
+                "type": "string"
+            },
+            "required": [
+                "en"
+            ]
+        },
+        "parameters": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "propertyNames": {
+                    "enum": [
+                        "display_name",
+                        "type",
+                        "comment",
+                        "context",
+                        "values"
+                    ]
+                },
+                "properties": {
+                    "display_name": {
+                        "$ref": "#/definitions/field_with_locale"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "string",
+                            "integer",
+                            "enum",
+                            "boolean"
+                        ]
+                    },
+                    "values": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "comment": {
+                        "$ref": "#/definitions/field_with_locale"
+                    },
+                    "context": {
+                        "$ref": "#/definitions/context"
+                    }
+                }
+            }
+        },
+        "resources": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "propertyNames": {
+                    "enum": [
+                        "display_name",
+                        "type",
+                        "path",
+                        "comment",
+                        "context"
+                    ]
+                },
+                "properties": {
+                    "display_name": {
+                        "$ref": "#/definitions/field_with_locale"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "file",
+                            "directory"
+                        ]
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "comment": {
+                        "$ref": "#/definitions/field_with_locale"
+                    },
+                    "context": {
+                        "$ref": "#/definitions/context"
+                    }
+                }
+            }
+        },
+        "ports": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "propertyNames": {
+                    "enum": [
+                        "display_name",
+                        "port",
+                        "comment",
+                        "context"
+                    ]
+                },
+                "properties": {
+                    "display_name": {
+                        "$ref": "#/definitions/field_with_locale"
+                    },
+                    "port": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 65535
+                    },
+                    "comment": {
+                        "$ref": "#/definitions/field_with_locale"
+                    },
+                    "context": {
+                        "$ref": "#/definitions/context"
+                    }
+                }
+            }
+        },
+        "services": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "propertyNames": {
+                    "enum": [
+                        "display_name",
+                        "unit_name",
+                        "comment",
+                        "context"
+                    ]
+                },
+                "properties": {
+                    "display_name": {
+                        "$ref": "#/definitions/field_with_locale"
+                    },
+                    "unit_name": {
+                        "type": "string"
+                    },
+                    "comment": {
+                        "$ref": "#/definitions/field_with_locale"
+                    },
+                    "context": {
+                        "$ref": "#/definitions/context"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "field_with_locale": {
+            "type": "object",
+            "propertyNames": {
+                "pattern": "^[a-z]{2}(_[A-Z]{2})?$"
+            },
+            "additionalProperties": {
+                "type": "string"
+            },
+            "required": [
+                "en"
+            ]
+        },
+        "context": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "deploy",
+                    "status",
+                    "backup",
+                    "restore",
+                    "diag",
+                    "predeploy"
+                ]
+            }
+        }
+    }
+}
+

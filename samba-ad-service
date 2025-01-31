@@ -1,0 +1,348 @@
+#!/usr/bin/env bash
+# Samba active directory provision
+# Tool for provision samba active directory
+#
+# Copyright (C) 2024 Evgenii Sozonov <arzdez@altlinux.org>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# shellcheck disable=SC2034
+# shellcheck disable=SC1091
+# shellcheck disable=SC2086
+# shellcheck disable=SC2317
+# shellcheck disable=SC3037
+
+set -euo pipefail
+
+. shell-getopt
+. shell-ini-config
+
+PROG_NAME="${0##*/}"
+VERSION="0.1"
+MODE="provision"
+GLOBAL_EXIT=0
+input_json=
+
+OPTIONS_LIST="help,
+              version,
+              join,
+              demote,
+              provision,
+              restore,
+              backup,
+              status,
+              input:"
+
+OPTIONS_SHORT_LIST="h,v,j,d,p,b,r,s,i:"
+
+TEMP=$(getopt -n "$PROG_NAME" -o "$OPTIONS_SHORT_LIST" -l "$OPTIONS_LIST" -- "$@")
+eval set -- "$TEMP"
+
+while :; do
+    case "$1" in
+        -h|--help)
+            show_usage
+            ;;
+        -v|--version)
+            show_version
+            ;;
+        -j|--join)
+            MODE="join"
+            ;;
+        -d|--demote)
+            MODE="demote"
+            ;;
+        -p|--provision)
+            MODE="provision"
+            ;;
+        -r|--restore)
+            MODE="restore"
+            ;;
+        -b|--backup)
+            MODE="backup"
+            ;;
+        -s|--status)
+            MODE="status"
+            ;;
+        -i|--input) shift
+            input_json="$1"
+            ;;
+        --) shift; break
+            ;;
+        *) fatal "Unrecognized option: $1"
+            ;;
+    esac
+    shift
+done
+
+if [ -z "$input_json" ]; then
+    while read -r line; do
+        input_json+="$line"
+    done
+fi
+
+validate_json(){
+    local input_json="$1"
+    local retval=0
+    local path_to_schema=
+    path_to_schema="/usr/share/alterator-samba-service/deploy-parameters-validation.schema.json"
+
+    jsonschema "$path_to_schema" <<< $input_json &>/dev/null || retval=1
+
+    return $retval
+}
+
+parse_json() {
+    local json_struct="$1"
+    local param_name="$2"
+    local retval=0
+
+    local param_value=
+    param_value="$(echo "$json_struct" | jq -r ".parameters.$param_name")"
+    if [ -z "$param_value" ]; then
+        false
+    else
+        echo "$param_value"
+    fi
+
+    return 0
+}
+
+upper() {
+    echo -n "$1" | tr '[:lower:]' '[:upper:]'
+}
+
+remove_quotes() {
+    echo -n "$1" | sed 's/\"//g'
+}
+
+set_hostname() {
+    local domain_realm="$1"
+    local retval=0
+    local hostname=
+
+    hostname="$(hostname -s)"
+
+    hostnamectl hostname "$hostname.$domain_realm" || retval=1
+
+    return $retval
+}
+
+force_deploy() {
+    rm -f /etc/samba/smb.conf
+    rm -rf /var/lib/samba/
+    rm -rf /var/cache/samba/
+    mkdir -p /var/lib/samba/private
+    mkdir -p /var/lib/samba/sysvol
+
+    retrun 0
+}
+
+edit_krb5_conf() {
+    local domain_realm="$1"
+    upper_realm="$(upper $domain_realm)"
+
+    if ! [ -f /etc/krb5.conf.back ]; then
+        mv /etc/krb5.conf /etc/krb5.conf.back
+    fi
+
+    cp -u /var/lib/samba/private/krb5.conf /etc/krb5.conf
+    chmod 644 /etc/krb5.conf
+
+    ini_config_set /etc/krb5.conf "libdefaults" "dns_lookup_realm" "false"
+    ini_config_set /etc/krb5.conf "libdefaults" "dns_lookup_kdc" "true"
+    ini_config_set /etc/krb5.conf "libdefaults" "ticket_lifetime" "24h"
+    ini_config_set /etc/krb5.conf "libdefaults" "renew_lifetime" "7d"
+    ini_config_set /etc/krb5.conf "libdefaults" "forwardable" "true"
+    ini_config_set /etc/krb5.conf "libdefaults" "rdns" "false"
+    ini_config_set /etc/krb5.conf "libdefaults" "default_ccache_name" "KEYRING:persistent:%{uid}"
+
+    ini_config_set /etc/krb5.conf "domain_realm" "$domain_realm" "$upper_realm"
+
+    return 0
+}
+
+edit_resolv_conf() {
+    local domain_realm="$1"
+    mv /etc/resolv.conf /etc/resolv.conf.back
+
+    echo "search $domain_realm" > /etc/resolv.conf
+    echo "nameserver 127.0.0.1" >> /etc/resolv.conf
+}
+
+enable_samba_unit() {
+    local out=
+
+    out="$(systemctl enable --now samba.service &>/dev/null)" || retval 1
+    if [ $retval -eq 1 ]; then
+        echo $out
+    fi
+
+    return $retval
+}
+
+call_domain_provision() {
+    local input_json="$1"
+    local domain=
+    local domain_realm=
+    local site_name=
+    local dns_backend=
+    local function_level=
+    local password=
+    local backend_store=
+    local backend_store_size=
+    local use_rfc=
+    local force_deploy=
+    local dns_forwarder=
+    local provision_parameters=()
+    local retval=0
+
+    if validate_json "$input_json"; then
+        domain="$(parse_json "$input_json" "domain")"
+        domain_realm="$(parse_json "$input_json" "domain_realm")"
+        site_name="$(parse_json "$input_json" "site_name")"
+        dns_backend="$(parse_json "$input_json" "dns_backend")"
+        function_level="$(parse_json "$input_json" "function_level")"
+        password="$(parse_json "$input_json" "admpass")"
+        backend_store="$(parse_json "$input_json" "backend_store")"
+        force_deploy="$(parse_json "$input_json" "force_deploy")"
+        dns_forwarder="$(parse_json "$input_json" "dns_forwarder")"
+
+        use_rfc="$(parse_json "$input_json" "use_rfc")"
+        if [ "$use_rfc" = "true" ]; then
+            provision_parameters+=(--use-rfc2307)
+        fi
+
+        backend_store="$(parse_json "$input_json" "backend_store")"
+        if [ "$backend_store" = "mdb" ]; then
+            backend_store_size="$(parse_json "$input_json" "backend_store_size"Gb)"
+        fi
+
+    else
+        echo "Json is not valid"
+        retval=1
+    fi
+
+    if [ $retval -eq 0 ]; then
+        provision_parameters=( --realm "$domain_realm"
+                            --domain "$domain"
+                            --site "$site_name"
+                            --dns-backend "$dns_backend"
+                            --function-level "$function_level"
+                            --adminpass "$password" )
+
+        if [ "$dns_backend" = "SAMBA_INTERNAL" ]; then
+            if [ -z "$dns_forwarder" ]; then
+                provision_parameters+=(--option=\"dns forwarder="$dns_forwarder"\")
+            fi
+        fi
+
+        case "$function_level" in
+            2008r2)
+                provision_parameters+=('--option="ad dc functional level=2008r2"')
+                ;;
+            2016)
+                provision_parameters+=('--option="ad dc functional level=2016"')
+                ;;
+        esac
+
+        case "$backend_store" in
+            tdb)
+                provision_parameters+=(--backend-store tdb)
+                ;;
+            mdb)
+                provision_parameters+=(--backend-store mdb)
+                provision_parameters+=(--backend-store-size "$backend_store_size")
+                ;;
+        esac
+
+        if [ -f /etc/samba/smb.conf ]; then
+            mv /etc/samba/smb.conf /etc/samba/smb.conf.back
+        fi
+
+        if [ "$force_deploy" = "true" ]; then
+            force_deploy || retval=1
+        fi
+
+        set_hostname "$domain_realm" || retval=1
+        provision_command="samba-tool domain provision ${provision_parameters[*]}"
+        eval $provision_command &>/dev/null|| retval=1
+
+        if [ $retval -eq 1 ]; then
+            echo "Something went wrong"
+        else
+            edit_krb5_conf "$domain_realm" || retval=1
+            edit_resolv_conf "$domain_realm" || retval=1
+            enable_samba_unit || retval=1
+            if [ "$dns_backend" = "BIND9_DLZ" ]; then
+                bind_setup || retval=1
+            fi
+        fi
+    fi
+
+    return $retval
+}
+
+call_domain_join() {
+    # TODO {arzdez} "Implement domain join"
+    echo "Join DC to domain"
+}
+
+call_domain_demote() {
+    # TODO {arzdez} "Implement domain demote"
+    echo "Demote DC from domain"
+}
+
+bind_setup() {
+    # TODO {arzdez} "Implement bind setup"
+    true
+}
+
+call_status() {
+    # TODO {arzdez} "Implement status"
+    true
+}
+
+call_backup() {
+    # TODO {arzdez} "Implement backup"
+    true
+}
+
+call_restore() {
+    # TODO {arzdez} "Implement restore"
+    true
+}
+
+case "$MODE" in
+    provision)
+        call_domain_provision "$input_json" || GLOBAL_EXIT=1
+        ;;
+    join)
+        call_domain_join || GLOBAL_EXIT=1
+        ;;
+    demote)
+        call_domain_demote || GLOBAL_EXIT=1
+        ;;
+    status)
+        call_status || GLOBAL_EXIT=1
+        ;;
+    backup)
+        call_backup || GLOBAL_EXIT=1
+        ;;
+    restore)
+        call_restore || GLOBAL_EXIT=1
+        ;;
+esac
+
+exit $GLOBAL_EXIT

@@ -1,0 +1,127 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Samba DC join Parameters",
+    "type": "object",
+    "$comment": "This schema is used to validate the parameters passed to the Samba AD provision API",
+    "propertyNames": {
+        "enum": [
+            "parameters"
+        ]
+    },
+    "properties": {
+        "parameters": {
+            "title": "Samba AD Provision Parameters",
+            "description": "Parameters for Samba AD provision",
+            "type": "object",
+            "propertyNames": {
+                "enum": [
+                    "domain",
+                    "domain_realm",
+                    "admpass",
+                    "dns_backend",
+                    "server_role",
+                    "backend_store",
+                    "backend_store_size",
+                    "use_mitkrb5",
+                    "use_rfc",
+                    "force_deploy",
+                    "function_level",
+                    "site_name",
+                    "dns_forwarder"
+                ]
+            },
+            "properties": {
+                "domain": {
+                    "type": "string"
+                },
+                "domain_realm": {
+                    "type": "string"
+                },
+                "admpass": {
+                    "type": "string"
+                },
+                "dns_backend": {
+                    "type": "string",
+                    "enum": [
+                        "SAMBA_INTERNAL",
+                        "BIND9_DLZ"
+                    ]
+                },
+                "server_role": {
+                    "type": "string",
+                    "enum": [
+                        "dc",
+                        "domain controller",
+                        "member server",
+                        "member",
+                        "standalone"
+                    ]
+                },
+                "backend_store": {
+                    "type": "string",
+                    "enum": [
+                        "tdb",
+                        "mdb"
+                    ]
+                },
+                "backend_store_size": {
+                    "$comment": "This property is required if backend_store is mdb",
+                    "type": "integer"
+                },
+                "dns_forwarder": {
+                    "$comment": "This property is required if dns_backend is SAMBA_INTERNAL",
+                    "type": "string",
+                    "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+                },
+                "use_mitkrb5": {
+                    "type": "boolean"
+                },
+                "use_rfc": {
+                    "type": "boolean"
+                },
+                "force_deploy": {
+                    "$comment": "This property used to force deploy the provision",
+                    "type": "boolean"
+                },
+                "function_level": {
+                    "type": "string",
+                    "enum": [
+                        "2000",
+                        "2003",
+                        "2008",
+                        "2008_R2",
+                        "2016"
+                    ]
+                },
+                "site_name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "domain_realm",
+                "dns_backend",
+                "backend_store",
+                "use_rfc",
+                "force_deploy",
+                "function_level"
+            ],
+            "$comment": "Conditional required properties",
+            "allOf": [
+                {
+                    "if": {
+                        "$comment": "If backend_store is mdb, backend_store_size is required",
+                        "properties": {
+                            "backend_store": { "const": "mdb" }
+                        }
+                    },
+                    "then": {
+                        "required": ["backend_store_size"]
+                    }
+                }
+            ]
+        }
+    },
+    "required": [
+        "parameters"
+    ]
+}

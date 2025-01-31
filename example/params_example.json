@@ -1,0 +1,17 @@
+{
+    "parameters": {
+        "domain": "prov",
+        "domain_realm": "prov.alt",
+        "admpass": "Vfnhbwf2yf2@@21",
+        "dns_backend": "SAMBA_INTERNAL",
+        "server_role": "dc",
+        "backend_store": "mdb",
+        "backend_store_size": 8,
+        "use_mitkrb5": false,
+        "use_rfc": true,
+        "force_deploy": true,
+        "function_level": "2016",
+        "site_name": "Default-First-Site-nName",
+        "dns_forwarder": "8.8.8.8"
+    }
+}
