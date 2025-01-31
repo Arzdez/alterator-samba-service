@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+"-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+"http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <action id="org.altlinux.alterator.service1">
+    <description>Alterator Authentication dialogue</description>
+    <message>org.altlinux.alterator.service requires authentication.</message>
+    <defaults>
+      <allow_any>yes</allow_any>
+      <allow_inactive>yes</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+  </action>
+  <action id="org.altlinux.alterator.service1.Info">
+    <description>Alterator Authentication dialogue</description>
+    <message>org.altlinux.alterator.service.Info requires authentication.</message>
+    <defaults>
+      <allow_any>yes</allow_any>
+      <allow_inactive>yes</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+  </action>
+  <action id="org.altlinux.alterator.service1.Deploy">
+    <description>Alterator Authentication dialogue</description>
+    <message>org.altlinux.alterator.service.Deploy requires authentication.</message>
+    <defaults>
+      <allow_any>auth_admin_keep</allow_any>
+      <allow_inactive>auth_admin_keep</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+  <action id="org.altlinux.alterator.service1.Backup">
+    <description>Alterator Authentication dialogue</description>
+    <message>org.altlinux.alterator.service.Backup requires authentication.</message>
+    <defaults>
+      <allow_any>auth_admin_keep</allow_any>
+      <allow_inactive>auth_admin_keep</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+    <action id="org.altlinux.alterator.service1.Undeploy">
+    <description>Alterator Authentication dialoguel</description>
+    <message>org.altlinux.alterator.service.Undeploy requires authentication.</message>
+    <defaults>
+      <allow_any>auth_admin_keep</allow_any>
+      <allow_inactive>auth_admin_keep</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+    </action>
+    <action id="org.altlinux.alterator.service1.Restore">
+    <description>Alterator Authentication dialogue</description>
+    <message>org.altlinux.alterator.service.Restore requires authentication.</message>
+    <defaults>
+      <allow_any>auth_admin_keep</allow_any>
+      <allow_inactive>auth_admin_keep</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+  </action>
+    </action>
+    <action id="org.altlinux.alterator.service1.Status">
+    <description>Returns status</description>
+    <message>org.altlinux.alterator.service.Status requires authentication.</message>
+    <defaults>
+      <allow_any>yes</allow_any>
+      <allow_inactive>yes</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+  </action>
+</policyconfig>

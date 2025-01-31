@@ -1,0 +1,45 @@
+<!DOCTYPE node PUBLIC
+"-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="/" xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="org.altlinux.alterator.service">
+        <doc:doc>
+            <doc:description>
+                <doc:para>
+                    Service control interface.
+                </doc:para>
+            </doc:description>
+        </doc:doc>
+
+        <method name="Info">
+            <arg type='ay' name='stdout_bytes' direction='out'></arg>
+            <arg type="i" name="response" direction="out"></arg>
+        </method>
+
+        <method name="Deploy">
+            <arg type='as' name='param' direction='in'></arg>
+            <arg type='i' name='response' direction='out'></arg>
+            <arg type='as' name='stdout_string' direction='out'></arg>
+        </method>
+
+        <method name="Undeploy">
+            <arg type='s' name='param' direction='in'></arg>
+            <arg type='i' name='response' direction='out'></arg>
+        </method>
+
+        <method name="Backup">
+            <arg type='s' name='param' direction='in'></arg>
+            <arg type='i' name='response' direction='out'></arg>
+        </method>
+
+        <method name="Restore">
+            <arg type='s' name='param' direction='in'></arg>
+            <arg type='i' name='response' direction='out'></arg>
+        </method>
+
+        <method name="Status">
+            <arg type='ay' name='stdout_bytes' direction='out'></arg>
+        </method>
+
+    </interface>
+</node>

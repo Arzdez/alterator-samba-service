@@ -1,0 +1,69 @@
+type = "Service"
+name = "example_service"
+category = "someCategory"
+icon = "example_service_icon"
+display_name.en = "example service"
+display_name.ru = "Пример сервиса"
+comment.en = "This is an example service"
+comment.ru = "Это пример сервиса"
+
+[parameters.param1]
+display_name.en = "Some parameter name"
+display_name.ru = "Параметр"
+comment.en = "Comment"
+comment.ru = "Комментарий"
+type = "string" # string|int|enum
+context = [
+    "deploy",
+    "status",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[resources.resource1]
+display_name.en = "Some resource name"
+display_name.ru = "Ресурс"
+comment.en = "Comment"
+comment.ru = "Комментарий"
+type = "file" # file|directory
+path = "/some/path"
+context = [
+    "deploy",
+    "status",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[services.service1]
+display_name.en = "Some service name"
+display_name.ru = "Имя сервиса"
+comment.en = "Comment"
+comment.ru = "Комментарий"
+unit_name = "some.service"
+context = [
+    "deploy",
+    "status",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.port1]
+display_name.en = "Some port"
+display_name.ru = "Порт"
+comment.en = "Comment"
+comment.ru = "Комментарий"
+port_number = 80
+context = [
+    "deploy",
+    "status",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
