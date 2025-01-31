@@ -1,0 +1,41 @@
+type = "Backend"
+module = "executor"
+interface = "service1"
+name = "service_samba_dc"
+thread_limit = 3
+
+[methods.Info]
+execute = "cat /usr/share/alterator/service/service-samba-dc.service"
+action_id = "Info"
+stdout_strings = true
+
+[methods.Deploy]
+execute = "service-samba-dc -p"
+action_id = "Deploy"
+timeout = 600
+stdin_string = true
+stdout_strings = true
+
+[methods.Undeploy]
+execute = "service-samba-dc -d"
+action_id = "Undeploy"
+timeout = 600
+
+[methods.Status]
+execute = "service-samba-dc -s"
+action_id = "Status"
+stdout_strings = true
+
+[methods.Restore]
+execute = "service-samba-dc -r"
+action_id = "Restore"
+timeout = 600
+stdin_string = true
+stdout_strings = true
+
+[methods.Backup]
+execute = "service-samba-dc -b"
+action_id = "Backup"
+timeout = 600
+stdin_string = true
+stdout_strings = true

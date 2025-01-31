@@ -1,0 +1,402 @@
+type = "Service"
+name = "Samba service"
+category = "infra"
+display_name.en = "samba service"
+display_name.ru = "service samba"
+comment.en = "Samba active directory management service"
+comment.ru = "Сервис управления samba active directory"
+
+[parameters.domain]
+display_name.en = "Domain name"
+display_name.ru = "Имя домена"
+comment.en = "Domain name for samba ad"
+comment.ru = "Имя домена для samba ad"
+type = "string"
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[parameters.realm]
+display_name.en = "Realm"
+display_name.ru = "Область"
+comment.en = "Realm for samba ad"
+comment.ru = "Область для samba ad"
+type = "string"
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[parameters.adminPassword]
+display_name.en = "Admin password"
+display_name.ru = "Пароль администратора"
+comment.en = "Password for admin"
+comment.ru = "Пароль для администратора"
+type = "string"
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[parameters.dnsBackend]
+display_name.en = "DNS backend"
+display_name.ru = "DNS бэкенд"
+comment.en = "DNS backend for samba ad"
+comment.ru = "DNS бэкенд для samba ad"
+type = "enum"
+values = ["BIND9_DLZ", "SAMBA_INTERNAL"]
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[parameters.dnsForwarder]
+display_name.en = "DNS forwarder"
+display_name.ru = "DNS форвардер"
+comment.en = "DNS forwarder for samba ad"
+comment.ru = "DNS форвардер для samba ad"
+type = "string"
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[parameters.backendStore]
+display_name.en = "Backend store"
+display_name.ru = "Тип базы"
+comment.en = "Backend store for samba ad"
+comment.ru = "Тип базы для samba ad"
+type = "enum"
+values = ["tdb", "mdb"]
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[parameters.useRfc2307]
+display_name.en = "Use rfc2307"
+display_name.ru = "Использовать rfc2307"
+comment.en = "Use rfc2307 for samba ad"
+comment.ru = "Использовать rfc2307 для samba ad"
+type = "boolean"
+context = [
+    "deploy",
+    "restore",
+]
+
+[parameters.forceDeploy]
+display_name.en = "Force deploy"
+display_name.ru = "Принудительное развертывание"
+comment.en = "Force deploy domain"
+comment.ru = "Принудительное развертывание домена без проверки его существования"
+type = "boolean"
+context = [
+    "deploy"
+]
+
+[parameters.fuctionalLevel]
+display_name.en = "Functional level"
+display_name.ru = "Функциональный уровень"
+comment.en = "Domain functional level"
+comment.ru = "Функциональный уровень домена"
+type = "enum"
+values = ["2008_R2", "2012", "2012_R2", "2016"]
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[parameters.useMitkrb5]
+display_name.en = "Use mitkrb5"
+display_name.ru = "Использовать mitkrb5"
+comment.en = "Use mitkrb5 for samba ad"
+comment.ru = "Использовать mitkrb5 для samba ad"
+type = "boolean"
+context = [
+    "deploy",
+    "restore"
+]
+
+[parameters.siteName]
+display_name.en = "Site name"
+display_name.ru = "Имя сайта"
+comment.en = "Site name for samba ad"
+comment.ru = "Имя сайта для samba ad"
+type = "string"
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[resources.smbConf]
+display_name.en = "Smb.conf"
+display_name.ru = "Smb.conf"
+comment.en = "Smb.conf file"
+comment.ru = "Файл smb.conf"
+type = "file"
+path = "/etc/samba/smb.conf"
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[resources.krb5Conf]
+display_name.en = "Krb5.conf"
+display_name.ru = "Krb5.conf"
+comment.en = "Krb5.conf file"
+comment.ru = "Файл krb5.conf"
+type = "file"
+path = "/etc/krb5.conf"
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[resources.libSamba]
+display_name.en = "lib folder samba"
+display_name.ru = "Папка lib samba"
+comment.en = "Lib folder samba"
+comment.ru = "Папка lib samba"
+type = "directory"
+path = "/usr/lib/samba"
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[resources.cacheSamba]
+display_name.en = "Cache folder samba"
+display_name.ru = "Папка cache samba"
+comment.en = "Cache folder samba"
+comment.ru = "Папка cache samba"
+type = "directory"
+path = "/var/cache/samba"
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[resources.sysVolSamba]
+display_name.en = "Sysvol folder samba"
+display_name.ru = "Папка sysvol samba"
+comment.en = "Sysvol folder samba"
+comment.ru = "Папка sysvol samba"
+type = "directory"
+path = "/var/lib/samba/sysvol"
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[services.Samba]
+display_name.en = "Samba service"
+display_name.ru = "Сервис samba"
+comment.en =   "Samba service"
+comment.ru = "Управляющий юнит samba"
+unit_name = "samba.service"
+context = [
+    "deploy",
+    "status",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.dns]
+display_name.en = "DNS port"
+display_name.ru = "Порт DNS"
+comment.en = "DNS port"
+comment.ru = "Порт DNS"
+port = 53
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.kerberos]
+display_name.en = "Kerberos port"
+display_name.ru = "Порт Kerberos"
+port = 88
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.ldap]
+display_name.en = "LDAP port"
+display_name.ru = "Порт LDAP"
+port = 389
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.ldapS]
+display_name.en = "LDAPs port"
+display_name.ru = "Порт LDAPs"
+port = 636
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.dcerpc]
+display_name.en = "DCE/RPC port"
+display_name.ru = "Порт DCE/RPC"
+port = 135
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.kPasswd]
+display_name.en = "Kerberos kpasswd port"
+display_name.ru = "Порт Kerberos kpasswd"
+port = 464
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.GlobalCatalogSSL]
+display_name.en = "Global Catalog SSL port"
+display_name.ru = "Порт Global Catalog SSL"
+port = 3269
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.ssh]
+display_name.en = "SSH port"
+display_name.ru = "Порт SSH"
+port = 22
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.ntp]
+display_name.en = "NTP port"
+display_name.ru = "Порт NTP"
+port = 123
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.NetBiosName]
+display_name.en = "NetBios Name Service port"
+display_name.ru = "Порт NetBios Service Name"
+port = 137
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.NetBiosDatagram]
+display_name.en = "NetBios Datagram Service port"
+display_name.ru = "Порт NetBios Datagram Service"
+port = 138
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.NetBiosSession]
+display_name.en = "NetBios Session Service port"
+display_name.ru = "Порт NetBios Session Service"
+port = 139
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
+
+[ports.smb]
+display_name.en = "SMB  over tcp port"
+display_name.ru = "Порт SMB"
+port = 445
+context = [
+    "deploy",
+    "backup",
+    "restore",
+    "diag",
+    "predeploy"
+]
